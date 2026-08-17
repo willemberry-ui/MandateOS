@@ -1,0 +1,15 @@
+{
+  "short_name": "MandateOS",
+  "name": "MandateOS",
+  "icons": [
+    {
+      "src": "mandateos-nav-logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#080720",
+  "background_color": "#050412"
+}

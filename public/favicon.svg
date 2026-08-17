@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="MandateOS">
+  <rect width="1000" height="1000" fill="#050412"/>
+  <g transform="translate(160 320) scale(1)">
+    <path d="M56 48H224L112 312H56V48Z" fill="#EDEAF8"/>
+    <path d="M280 48H400L340 196L280 48Z" fill="#8F80F7"/>
+    <path d="M456 48H624V312H568L456 48Z" fill="#EDEAF8"/>
+    <path d="M216 312L284 176L352 312H216Z" fill="#7A68F2"/>
+    <path d="M392 312L460 176L528 312H392Z" fill="#A79BFF"/>
+  </g>
+</svg>

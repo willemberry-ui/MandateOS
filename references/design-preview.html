@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MandateOS — Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════
+     NEW DESIGN TOKENS — MandateOS Redesign
+     ═══════════════════════════════════════════ */
+  :root {
+    --black:         #09090b;
+    --bg:            #0b0b0e;
+    --raised:        #111115;
+    --surface:       #17171c;
+    --surfaceHover:  #1c1c22;
+    --card:          #141418;
+    --cardHover:     #1a1a20;
+    --border:        #27272f;
+    --borderHover:   #3a3a46;
+    --borderSubtle:  #1f1f26;
+
+    /* ── Accent: acid yellow ── */
+    --accent:        #d4ff57;
+    --accentDim:     #a8cc38;
+    --accentGhost:   #d4ff5712;
+    --accentWash:    #d4ff571a;
+
+    /* ── Secondary: finance teal ── */
+    --teal:          #00c9a7;
+    --tealWash:      #00c9a718;
+
+    /* ── Semantic ── */
+    --green:         #22d394;
+    --greenWash:     #22d39418;
+    --red:           #f5534b;
+    --redWash:       #f5534b18;
+    --amber:         #f5a623;
+    --amberWash:     #f5a62318;
+
+    /* ── Text ── */
+    --text:          #f4f4f5;
+    --textSoft:      #a1a1aa;
+    --textMuted:     #52525b;
+    --white:         #ffffff;
+
+    /* ── Typography ── */
+    --font:          'Inter', system-ui, -apple-system, sans-serif;
+    --fontMono:      'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESET + BASE
+     ═══════════════════════════════════════════ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Single subtle top glow — no more blob farm */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 500px;
+    background: radial-gradient(ellipse, #d4ff5709, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grain */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 9999; opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px;
+  }
+
+  #root { position: relative; z-index: 1; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  ::selection { background: var(--accent); color: #000; }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT HELPERS
+     ═══════════════════════════════════════════ */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+  .section { padding: 80px 0; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-family: var(--fontMono);
+  }
+  .section-rule {
+    height: 1px;
+    background: var(--border);
+    margin: 64px 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     PREVIEW PAGE CHROME
+     ═══════════════════════════════════════════ */
+  .preview-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0;
+    background: var(--black);
+    z-index: 100;
+  }
+  .preview-header-logo {
+    font-family: var(--fontMono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .preview-header-tag {
+    font-family: var(--fontMono);
+    font-size: 11px;
+    color: var(--textMuted);
+  }
+  .preview-nav {
+    display: flex;
+    gap: 4px;
+    padding: 12px 0;
+    position: sticky; top: 61px;
+    background: var(--black);
+    z-index: 99;
+    border-bottom: 1px solid var(--borderSubtle);
+    margin-bottom: 0;
+  }
+  .preview-nav a {
+    font-family: var(--fontMono);
+    font-size: 11px;
+    color: var(--textMuted);
+    text-decoration: none;
+    padding: 5px 14px;
+    border-radius: 6px;
+    transition: color .15s, background .15s;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .preview-nav a:hover { color: var(--text); background: var(--surface); }
+
+  /* ═══════════════════════════════════════════
+     1. COLOR PALETTE
+     ═══════════════════════════════════════════ */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .swatch {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .swatch-color {
+    height: 64px;
+  }
+  .swatch-label {
+    padding: 10px 12px;
+    background: var(--surface);
+  }
+  .swatch-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .swatch-hex {
+    font-family: var(--fontMono);
+    font-size: 11px;
+    color: var(--textMuted);
+  }
+
+  /* ═══════════════════════════════════════════
+     2. TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  .type-specimen { display: flex; flex-direction: column; gap: 24px; }
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--borderSubtle);
+  }
+  .type-meta {
+    min-width: 160px;
+    font-family: var(--fontMono);
+    font-size: 10px;
+    color: var(--textMuted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+  }
+
+  /* ═══════════════════════════════════════════
+     3. NAV PREVIEW
+     ═══════════════════════════════════════════ */
+  .nav-preview {
+    height: 56px;
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    justify-content: space-between;
+    gap: 32px;
+  }
+  .nav-logo {
+    font-family: var(--fontMono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-version {
+    font-family: var(--fontMono);
+    font-size: 10px;
+    color: var(--textMuted);
+    margin-left: 10px;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--textSoft);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 2px;
+    transition: color .2s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; left: 0; bottom: -2px;
+    width: 100%; height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform .2s cubic-bezier(.22,1,.36,1);
+    transform-origin: left;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta {
+    background: var(--white);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+    letter-spacing: -0.01em;
+  }
+  .nav-cta:hover { background: var(--accent); transform: translateY(-1px); }
+
+  /* ═══════════════════════════════════════════
+     4. HERO PREVIEW
+     ═══════════════════════════════════════════ */
+  .hero-preview {
+    padding: 80px 0 60px;
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    gap: 64px;
+    align-items: center;
+    min-height: 480px;
+  }
+  .hero-eyebrow {
+    font-family: var(--fontMono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+  .hero-h1 {
+    font-size: 68px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+  }
+  .hero-h1 .line1 { color: var(--white); display: block; }
+  .hero-h1 .line2 { color: var(--accent); display: block; }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--textSoft);
+    line-height: 1.65;
+    max-width: 440px;
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+  .hero-actions { display: flex; gap: 12px; align-items: center; }
+  .btn-primary {
+    background: var(--white);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background .15s, transform .15s, box-shadow .15s;
+    letter-spacing: -0.01em;
+  }
+  .btn-primary:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px #d4ff5730;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--textSoft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-ghost:hover { border-color: var(--borderHover); color: var(--text); }
+  .play-icon {
+    width: 18px; height: 18px;
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px;
+  }
+
+  /* Hero product window */
+  .product-window {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px #ffffff08;
+  }
+  .window-chrome {
+    background: var(--raised, #111115);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .stoplight { display: flex; gap: 6px; }
+  .stoplight span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .sl-red { background: #f5534b; }
+  .sl-yellow { background: #f5a623; }
+  .sl-green { background: #22d394; }
+  .window-tab {
+    margin-left: 12px;
+    font-family: var(--fontMono);
+    font-size: 11px;
+    color: var(--textMuted);
+    letter-spacing: 0.04em;
+  }
+  .window-body { padding: 0; }
+  .table-head-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 80px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .th {
+    font-family: var(--fontMono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--textMuted);
+  }
+  .th.right { text-align: right; }
+  .lp-row-preview {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 80px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--borderSubtle);
+    transition: background .12s;
+    cursor: pointer;
+    align-items: center;
+  }
+  .lp-row-preview:last-child { border-bottom: none; }
+  .lp-row-preview:hover { background: var(--surfaceHover); }
+  .lp-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .lp-strategy {
+    font-family: var(--fontMono);
+    font-size: 11px;
+    color: var(--textSoft);
+  }
+  .lp-region {
+    font-size: 12px;
+    color: var(--textSoft);
+  }
+  .score-badge {
+    text-align: right;
+    font-family: var(--fontMono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .score-bar-wrap { margin-top: 3px; }
+  .score-bar-track {
+    height: 2px;
+    background: var(--borderSubtle);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .window-footer {
+    padding: 10px 16px;
+    background: var(--raised, #111115);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .wf-stat {
+    font-family: var(--fontMono);
+    font-size: 10px;
+    color: var(--textMuted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .wf-stat-val { color: var(--accent); font-weight: 700; }
+
+  /* ═══════════════════════════════════════════
+     5. COMPONENT SAMPLES
+     ═══════════════════════════════════════════ */
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .comp-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .comp-label {
+    font-family: var(--fontMono);
+    font-size: 10px;
+    color: var(--textMuted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  /* Pill/tag */
+  .tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .tag-accent { background: var(--accentWash); color: var(--accent); border-color: #d4ff5730; }
+  .tag-teal   { background: var(--tealWash);   color: var(--teal);   border-color: #00c9a730; }
+  .tag-slate  { background: var(--surface);    color: var(--textSoft); border-color: var(--border); }
+  .tag-red    { background: var(--redWash);    color: var(--red);    border-color: #f5534b30; }
+
+  /* Stat box */
+  .stat-row { display: flex; gap: 16px; }
+  .stat-box {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .stat-value {
+    font-family: var(--fontMono);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--textMuted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  /* Input */
+  .fin-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+  .fin-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accentGhost);
+  }
+  .fin-input::placeholder { color: var(--textMuted); }
+
+  /* Score bar (bigger) */
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .score-big {
+    font-family: var(--fontMono);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 60px;
+  }
+  .score-track {
+    flex: 1;
+    height: 6px;
+    background: var(--borderSubtle);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--teal));
+    box-shadow: 0 0 10px #d4ff5730;
+  }
+
+  /* Alert */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 9px;
+    font-size: 13px;
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1px solid;
+  }
+  .alert-success { background: var(--greenWash); color: var(--green); border-color: #22d39430; }
+  .alert-warn    { background: var(--amberWash); color: var(--amber); border-color: #f5a62330; }
+
+  /* ═══════════════════════════════════════════
+     6. BEFORE / AFTER COMPARISON
+     ═══════════════════════════════════════════ */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .compare-col {
+    padding: 24px;
+  }
+  .compare-col.before { background: var(--card); }
+  .compare-col.after  { background: var(--surface); }
+  .compare-head {
+    font-family: var(--fontMono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-head.before { color: var(--textMuted); }
+  .compare-head.after  { color: var(--accent); }
+  .compare-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--borderSubtle);
+  }
+  .compare-item:last-child { border-bottom: none; }
+  .compare-marker {
+    font-family: var(--fontMono);
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 2px;
+    min-width: 14px;
+  }
+  .compare-item.before-item .compare-marker { color: var(--red); }
+  .compare-item.before-item .compare-text   { color: var(--textMuted); text-decoration: line-through; }
+  .compare-item.after-item .compare-marker  { color: var(--accent); }
+  .compare-item.after-item .compare-text    { color: var(--text); }
+
+  /* ═══════════════════════════════════════════
+     7. OLD vs NEW SIDE-BY-SIDE
+     ═══════════════════════════════════════════ */
+  .versus-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .versus-panel {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .versus-label {
+    padding: 10px 16px;
+    font-family: var(--fontMono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .versus-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .versus-body { padding: 20px; }
+
+  /* OLD palette preview */
+  .old-panel { background: #080720; }
+  .old-accent { color: #7c6ff7; }
+  .old-label-bg { background: #080720; }
+  .new-label-bg { background: var(--black); }
+
+  .h1-old {
+    font-size: 36px; font-weight: 800; letter-spacing: -0.02em;
+    font-family: 'Manrope', sans-serif;
+    color: #edeaf8;
+    margin-bottom: 8px;
+  }
+  .h1-old span { color: #7c6ff7; }
+  .h1-new {
+    font-size: 36px; font-weight: 800; letter-spacing: -0.04em;
+    font-family: 'Inter', sans-serif;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .h1-new span { color: var(--accent); }
+
+  .old-sub { color: #a29ec0; font-size: 14px; margin-bottom: 16px; font-family: 'Manrope', sans-serif; }
+  .new-sub { color: var(--textSoft); font-size: 14px; margin-bottom: 16px; }
+
+  .old-btn {
+    background: linear-gradient(135deg, #7c6ff7, #5548d4);
+    color: white; border: none; border-radius: 10px;
+    padding: 10px 20px; font-size: 13px; font-weight: 700;
+    font-family: 'Manrope', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 0 24px #7c6ff730;
+  }
+  .new-btn {
+    background: var(--white);
+    color: #000; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 13px; font-weight: 700;
+    cursor: pointer;
+  }
+  .old-tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: #13113218; color: #a29ec0;
+    border: 1px solid #1e1b4040;
+    font-family: 'Manrope', sans-serif;
+    margin-left: 8px;
+  }
+
+  /* ═══════════════════════════════════════════
+     PAGE
+     ═══════════════════════════════════════════ */
+  .page-section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--borderSubtle);
+  }
+  .page-section:last-child { border-bottom: none; }
+  .big-label {
+    font-family: var(--fontMono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--textMuted);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .big-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+<!-- Load Manrope too for old/new comparison -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="root">
+
+  <!-- ══ STICKY HEADER ══ -->
+  <div class="preview-header">
+    <span class="preview-header-logo">CAPITAL OS — Design Preview</span>
+    <span class="preview-header-tag">v0.9 · Redesign Proposal · 2026</span>
+  </div>
+
+  <!-- ══ NAV ══ -->
+  <div class="wrap" style="padding-top:0; background: var(--black); position:sticky; top:61px; z-index:98;">
+    <nav class="preview-nav">
+      <a href="#oldvsnew">Old vs New</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#typography">Type</a>
+      <a href="#nav">Nav</a>
+      <a href="#hero">Hero</a>
+      <a href="#components">Components</a>
+      <a href="#before-after">Before/After</a>
+    </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 0 — OLD VS NEW
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="oldvsnew">
+    <div class="big-label">01 — Old vs New at a Glance</div>
+    <div class="versus-wrap">
+
+      <!-- OLD -->
+      <div class="versus-panel">
+        <div class="versus-label old-label-bg" style="color: #a29ec0;">
+          <span class="versus-dot" style="background:#7c6ff7;"></span>
+          Current — Space Violet
+        </div>
+        <div class="versus-body old-panel">
+          <div class="h1-old">Private Markets<br><span>Intelligence Layer</span></div>
+          <div class="old-sub">Standardize mandates, workflows, and fit scoring across LP and GP pipelines.</div>
+          <button class="old-btn">Request Access</button>
+          <span class="old-tag">Beta</span>
+          <div style="margin-top:20px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span style="display:inline-block; width:60px; height:28px; border-radius:6px; background:linear-gradient(135deg,#7c6ff718,#7c6ff730); border:1px solid #a78bfa30;"></span>
+            <span style="display:inline-block; width:48px; height:28px; border-radius:6px; background:#13113218; border:1px solid #1e1b4040;"></span>
+            <span style="display:inline-block; width:80px; height:28px; border-radius:6px; background:#14b8a618; border:1px solid #14b8a630;"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW -->
+      <div class="versus-panel">
+        <div class="versus-label new-label-bg" style="color: var(--accent);">
+          <span class="versus-dot" style="background: var(--accent);"></span>
+          Proposed — Zinc + Acid
+        </div>
+        <div class="versus-body" style="background: var(--black);">
+          <div class="h1-new">Private Markets<br><span>Intelligence Layer</span></div>
+          <div class="new-sub">Standardize mandates, workflows, and fit scoring across LP and GP pipelines.</div>
+          <button class="btn-primary">Request Access</button>
+          <span style="font-family:var(--fontMono); font-size:10px; color:var(--textMuted); margin-left:10px;">v0.9</span>
+          <div style="margin-top:20px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="tag tag-accent">Active</span>
+            <span class="tag tag-slate">Venture</span>
+            <span class="tag tag-teal">94%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 1 — COLOR TOKENS
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="tokens">
+    <div class="big-label">02 — Color Tokens</div>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#09090b;"></div>
+        <div class="swatch-label"><div class="swatch-name">black</div><div class="swatch-hex">#09090b</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#0b0b0e; border-bottom:1px solid #27272f;"></div>
+        <div class="swatch-label"><div class="swatch-name">bg</div><div class="swatch-hex">#0b0b0e</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#17171c;"></div>
+        <div class="swatch-label"><div class="swatch-name">surface</div><div class="swatch-hex">#17171c</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#141418;"></div>
+        <div class="swatch-label"><div class="swatch-name">card</div><div class="swatch-hex">#141418</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#27272f;"></div>
+        <div class="swatch-label"><div class="swatch-name">border</div><div class="swatch-hex">#27272f</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#d4ff57;"></div>
+        <div class="swatch-label"><div class="swatch-name">accent ★</div><div class="swatch-hex">#d4ff57</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#00c9a7;"></div>
+        <div class="swatch-label"><div class="swatch-name">teal</div><div class="swatch-hex">#00c9a7</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#22d394;"></div>
+        <div class="swatch-label"><div class="swatch-name">green</div><div class="swatch-hex">#22d394</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#f5534b;"></div>
+        <div class="swatch-label"><div class="swatch-name">red</div><div class="swatch-hex">#f5534b</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#f5a623;"></div>
+        <div class="swatch-label"><div class="swatch-name">amber</div><div class="swatch-hex">#f5a623</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#f4f4f5;"></div>
+        <div class="swatch-label"><div class="swatch-name">text</div><div class="swatch-hex">#f4f4f5</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#a1a1aa;"></div>
+        <div class="swatch-label"><div class="swatch-name">textSoft</div><div class="swatch-hex">#a1a1aa</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#52525b;"></div>
+        <div class="swatch-label"><div class="swatch-name">textMuted</div><div class="swatch-hex">#52525b</div></div>
+      </div>
+    </div>
+
+    <!-- Teal alternate note -->
+    <div style="margin-top:24px; padding:16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:13px; color:var(--textSoft);">
+      <span style="font-family:var(--fontMono); font-size:10px; color:var(--accent); font-weight:700; letter-spacing:0.08em; text-transform:uppercase;">Alternate Accent — Teal</span><br>
+      <span style="color:var(--textMuted); font-size:12px;">If acid yellow feels too bold, swap <code style="font-family:var(--fontMono); color:var(--teal);">#00c9a7</code> as the primary accent. More traditional fintech. Shown in "teal" swatch above.</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 2 — TYPOGRAPHY
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="typography">
+    <div class="big-label">03 — Typography · Inter + JetBrains Mono</div>
+    <div class="type-specimen">
+
+      <div class="type-row">
+        <div class="type-meta">Display<br>72px · 800 · −0.04em</div>
+        <div style="font-size:52px; font-weight:800; letter-spacing:-0.04em; line-height:1.05; color:var(--white);">Capital Allocation<br><span style="color:var(--accent);">Reinvented.</span></div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">H1<br>40px · 800 · −0.035em</div>
+        <div style="font-size:40px; font-weight:800; letter-spacing:-0.035em; color:var(--white);">Private Markets Intelligence</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">H2<br>28px · 700 · −0.025em</div>
+        <div style="font-size:28px; font-weight:700; letter-spacing:-0.025em; color:var(--white);">LP / GP Fit Engine</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">H3<br>20px · 700 · −0.015em</div>
+        <div style="font-size:20px; font-weight:700; letter-spacing:-0.015em; color:var(--white);">Mandate Standardization</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">Body<br>15px · 400 · 0em</div>
+        <div style="font-size:15px; color:var(--textSoft); max-width:520px; line-height:1.7;">
+          MandateOS helps private markets teams standardize mandates, workflows, and fit scoring across LP and GP pipelines. Built for allocators who move fast and need precision.
+        </div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">Label<br>11px · 700 · 0.1em · MONO</div>
+        <div style="font-family:var(--fontMono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--textMuted);">LP DATABASE · ACTIVE MANDATES · FIT SCORE</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">Mono Data<br>16px · 700 · −0.03em</div>
+        <div style="font-family:var(--fontMono); font-size:16px; font-weight:700; letter-spacing:-0.03em; color:var(--accent); font-variant-numeric:tabular-nums;">142 · 78% · $2.4B · &lt;48h</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">Eyebrow<br>11px · 600 · 0.12em · MONO</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="display:inline-block;width:24px;height:1px;background:var(--accent);"></span>
+          <span style="font-family:var(--fontMono);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);">Platform Overview</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 3 — NAV
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="nav">
+    <div class="big-label">04 — Navigation</div>
+    <div class="nav-preview">
+      <div style="display:flex;align-items:center;">
+        <span class="nav-logo">Capital<span>OS</span></span>
+        <span class="nav-version">v0.9</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#">Platform</a></li>
+        <li><a href="#">Demo</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+      <button class="nav-cta">Request Access</button>
+    </div>
+    <div style="margin-top:12px; font-family:var(--fontMono); font-size:11px; color:var(--textMuted);">
+      Hover nav links to see underline animation · Hover button to see accent transition
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 4 — HERO
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="hero" style="border-bottom: 1px solid var(--borderSubtle);">
+    <div class="big-label">05 — Hero Layout</div>
+    <div class="hero-preview">
+      <!-- Left -->
+      <div>
+        <div class="hero-eyebrow">Platform Overview</div>
+        <h1 class="hero-h1">
+          <span class="line1">Private Markets,</span>
+          <span class="line2">Fit-Scored.</span>
+        </h1>
+        <p class="hero-sub">Standardize mandates, score LP/GP fit, and move faster on every allocation decision. Built for teams that manage $100M–$10B in commitments.</p>
+        <div class="hero-actions">
+          <button class="btn-primary">Request Access</button>
+          <button class="btn-ghost">
+            <span class="play-icon">▶</span>
+            Watch 2-min demo
+          </button>
+        </div>
+      </div>
+      <!-- Right: Product Window -->
+      <div class="product-window">
+        <div class="window-chrome">
+          <div class="stoplight">
+            <span class="sl-red"></span>
+            <span class="sl-yellow"></span>
+            <span class="sl-green"></span>
+          </div>
+          <span class="window-tab">MandateOS · LP Fit Engine</span>
+        </div>
+        <div class="window-body">
+          <div class="table-head-row">
+            <div class="th">LP Name</div>
+            <div class="th">Strategy</div>
+            <div class="th">Region</div>
+            <div class="th right">Fit Score</div>
+          </div>
+          <div class="lp-row-preview">
+            <div>
+              <div class="lp-name">Pacific Endowment</div>
+            </div>
+            <div class="lp-strategy">Venture</div>
+            <div class="lp-region">N. America</div>
+            <div>
+              <div class="score-badge" style="color:var(--accent);">94%</div>
+              <div class="score-bar-wrap">
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:94%;"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="lp-row-preview">
+            <div>
+              <div class="lp-name">Harborview Allocators</div>
+            </div>
+            <div class="lp-strategy">Growth</div>
+            <div class="lp-region">Global</div>
+            <div>
+              <div class="score-badge" style="color:var(--teal);">88%</div>
+              <div class="score-bar-wrap">
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:88%; background:var(--teal);"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="lp-row-preview">
+            <div>
+              <div class="lp-name">Blue Peak Foundation</div>
+            </div>
+            <div class="lp-strategy">Venture</div>
+            <div class="lp-region">N. America</div>
+            <div>
+              <div class="score-badge" style="color:var(--green);">82%</div>
+              <div class="score-bar-wrap">
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:82%; background:var(--green);"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="lp-row-preview" style="opacity:.45;">
+            <div>
+              <div class="lp-name">Meridian Capital Group</div>
+            </div>
+            <div class="lp-strategy">Buyout</div>
+            <div class="lp-region">Europe</div>
+            <div>
+              <div class="score-badge" style="color:var(--textMuted);">61%</div>
+              <div class="score-bar-wrap">
+                <div class="score-bar-track"><div class="score-bar-fill" style="width:61%; background:var(--textMuted);"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="window-footer">
+          <div class="wf-stat">Active LPs <span class="wf-stat-val">142</span></div>
+          <div class="wf-stat">Avg Score <span class="wf-stat-val">78%</span></div>
+          <div class="wf-stat">Time to Match <span class="wf-stat-val">&lt;48h</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 5 — COMPONENTS
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="components">
+    <div class="big-label">06 — Components</div>
+    <div class="component-grid">
+
+      <!-- Tags -->
+      <div class="comp-card">
+        <div class="comp-label">Tags / Pills</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <span class="tag tag-accent">Active</span>
+          <span class="tag tag-teal">94% Match</span>
+          <span class="tag tag-slate">Venture Capital</span>
+          <span class="tag tag-red">Inactive</span>
+          <span class="tag tag-slate">N. America</span>
+          <span class="tag tag-accent">Deploying</span>
+        </div>
+      </div>
+
+      <!-- Stat boxes -->
+      <div class="comp-card">
+        <div class="comp-label">Stat Boxes</div>
+        <div class="stat-row">
+          <div class="stat-box">
+            <div class="stat-value">142</div>
+            <div class="stat-label">Active LPs</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color:var(--teal);">78%</div>
+            <div class="stat-label">Avg Fit Score</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="font-size:20px; margin-top:4px; color:var(--green);">&lt;48h</div>
+            <div class="stat-label">Time to Match</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="comp-card">
+        <div class="comp-label">Input / Search</div>
+        <input class="fin-input" type="text" placeholder="Search LPs by strategy, region, AUM..." />
+        <div style="margin-top:10px;">
+          <input class="fin-input" type="text" value="Venture Capital · $50M–$200M · Global" style="border-color:var(--accent); box-shadow: 0 0 0 3px var(--accentGhost);" />
+        </div>
+      </div>
+
+      <!-- Score display -->
+      <div class="comp-card">
+        <div class="comp-label">Fit Score Display</div>
+        <div class="score-display" style="margin-bottom:12px;">
+          <div class="score-big">94%</div>
+          <div style="flex:1;">
+            <div style="font-size:12px; color:var(--textSoft); margin-bottom:6px;">Pacific Endowment · Venture</div>
+            <div class="score-track"><div class="score-fill" style="width:94%;"></div></div>
+          </div>
+        </div>
+        <div class="score-display">
+          <div class="score-big" style="color:var(--textSoft); font-size:24px;">61%</div>
+          <div style="flex:1;">
+            <div style="font-size:12px; color:var(--textMuted); margin-bottom:6px;">Meridian Capital · Buyout</div>
+            <div class="score-track"><div class="score-fill" style="width:61%; background:var(--textMuted); box-shadow:none;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="comp-card">
+        <div class="comp-label">Buttons</div>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+          <button class="btn-primary">Request Access</button>
+          <button class="btn-ghost">View Demo</button>
+          <button class="btn-ghost" style="padding:9px 16px; font-size:13px;">
+            <span style="font-family:var(--fontMono);">↗</span> Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="comp-card">
+        <div class="comp-label">Alerts</div>
+        <div class="alert alert-success" style="margin-bottom:10px;">
+          <span>✓</span>
+          <span>LP profile saved. Fit scores recalculated across 142 LPs.</span>
+        </div>
+        <div class="alert alert-warn">
+          <span>⚠</span>
+          <span>3 mandates lack minimum check size. Review before publishing.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 6 — BEFORE / AFTER PROBLEM SECTION
+  ══════════════════════════════════════ -->
+  <div class="wrap page-section" id="before-after">
+    <div class="big-label">07 — Before / After (Problems Section)</div>
+    <div class="compare-grid">
+      <div class="compare-col before">
+        <div class="compare-head before">✕ Without MandateOS</div>
+        <div class="compare-item before-item">
+          <span class="compare-marker">✕</span>
+          <span class="compare-text">Mandates tracked in scattered spreadsheets and email threads</span>
+        </div>
+        <div class="compare-item before-item">
+          <span class="compare-marker">✕</span>
+          <span class="compare-text">LP/GP fit assessed manually, taking days per prospect</span>
+        </div>
+        <div class="compare-item before-item">
+          <span class="compare-marker">✕</span>
+          <span class="compare-text">No standardized scoring — every analyst has a different rubric</span>
+        </div>
+        <div class="compare-item before-item">
+          <span class="compare-marker">✕</span>
+          <span class="compare-text">Pipeline visibility requires hours of consolidation per week</span>
+        </div>
+      </div>
+      <div class="compare-col after">
+        <div class="compare-head after">→ With MandateOS</div>
+        <div class="compare-item after-item">
+          <span class="compare-marker" style="color:var(--accent);">→</span>
+          <span class="compare-text">All mandates in one structured, searchable workspace</span>
+        </div>
+        <div class="compare-item after-item">
+          <span class="compare-marker" style="color:var(--accent);">→</span>
+          <span class="compare-text">Automated fit scoring in under 48h across your full LP universe</span>
+        </div>
+        <div class="compare-item after-item">
+          <span class="compare-marker" style="color:var(--accent);">→</span>
+          <span class="compare-text">Consistent, explainable scores every team member trusts</span>
+        </div>
+        <div class="compare-item after-item">
+          <span class="compare-marker" style="color:var(--accent);">→</span>
+          <span class="compare-text">Real-time pipeline dashboard — no prep required</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <div style="border-top: 1px solid var(--border); padding: 24px 32px; display:flex; align-items:center; justify-content:space-between; max-width:1120px; margin:0 auto;">
+    <span style="font-family:var(--fontMono); font-size:12px; font-weight:700; letter-spacing:0.1em; color:var(--white);">CAPITAL<span style="color:var(--accent);">OS</span></span>
+    <div style="display:flex; gap:32px;">
+      <a href="#" style="font-size:12px; color:var(--textMuted); text-decoration:none;">Platform</a>
+      <a href="#" style="font-size:12px; color:var(--textMuted); text-decoration:none;">Privacy</a>
+      <a href="#" style="font-size:12px; color:var(--textMuted); text-decoration:none;">Contact</a>
+    </div>
+    <span style="font-family:var(--fontMono); font-size:11px; color:var(--textMuted);">© 2026 MandateOS</span>
+  </div>
+
+</div>
+</body>
+</html>
